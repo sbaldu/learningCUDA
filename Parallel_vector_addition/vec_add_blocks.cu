@@ -1,14 +1,14 @@
 #include <iostream>
 
-__global__ void add(int* a, int* b, int* c) {
-  c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x];
+__global__ void add(int *a, int *b, int *c) { 
+  c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x]; 
 }
 
 #define N 32
 
-void random_ints(int* a) {
+void random_ints(int *a) {
   for (int i{}; i < N; ++i) {
-	a[i] = rand();
+    a[i] = rand();
   }
 }
 
@@ -16,7 +16,6 @@ int main() {
   int *a, *b, *c;
   int *d_a, *d_b, *d_c;
   int size = N * sizeof(int);
-
 
   // Alloc memory on host and initialize data
   a = (int *)malloc(size);
@@ -37,13 +36,12 @@ int main() {
   // Calculate the output on the device
   add<<<N, 1>>>(a, b, c);
 
-  // Copy the output to the host 
+  // Copy the output to the host
   cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
 
-
   int sum{};
-  for(int i{}; i < N; ++i) {
-	sum += c[i];
+  for (int i{}; i < N; ++i) {
+    sum += c[i];
   }
 
   // Free memory on host
@@ -55,7 +53,5 @@ int main() {
   cudaFree(d_b);
   cudaFree(d_c);
 
-
   std::cout << "The sum is : " << sum << '\n';
-
 }

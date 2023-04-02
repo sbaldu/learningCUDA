@@ -16,7 +16,7 @@ int main() {
   std::iota(a.begin(), a.end(), 0);
   std::iota(b.begin(), b.end(), 0);
 
-  int size{ sizeof(int) * n };
+  int size{sizeof(int) * n};
 
   // Allocate memory on device
   int *d_a, *d_b;
@@ -27,14 +27,14 @@ int main() {
   cudaMemcpy(d_a, a.data(), size, cudaMemcpyHostToDevice);
 
   // Calculate output on device
-  reverse<<<1,n>>>(d_a, d_b);
+  reverse<<<1, n>>>(d_a, d_b);
 
   // Move output from device to host
   cudaMemcpy(b.data(), d_b, size, cudaMemcpyDeviceToHost);
 
   // Print output
-  for(auto const& x : b) {
-	std::cout << x << '\n';
+  for (auto const& x : b) {
+    std::cout << x << '\n';
   }
 
   // Free memory

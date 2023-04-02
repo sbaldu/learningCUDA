@@ -2,29 +2,29 @@
 #include <vector>
 
 __global__ void add(int *a, int *b, int *c) { 
-  c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x];
+  c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x]; 
 }
 
-void print(int* p, int n) {
-  for(int i{}; i < n; ++i) {
-	std::cout << p[i] << '\n';
+void print(int *p, int n) {
+  for (int i{}; i < n; ++i) {
+    std::cout << p[i] << '\n';
   }
 }
 
 int main() {
   int const N{512};
   // Initialize data on host
-  std::vector<int> a; 
-  std::vector<int> b; 
+  std::vector<int> a;
+  std::vector<int> b;
   a.resize(N);
   b.resize(N);
-  for(int i{}; i < N; ++i) {
-	a[i] = i;
-	b[i] = 2*i;
+  for (int i{}; i < N; ++i) {
+    a[i] = i;
+    b[i] = 2 * i;
   }
-  int* c;
+  int *c;
   int size = sizeof(int) * N;
-  c = (int*)malloc(size);
+  c = (int *)malloc(size);
 
   // Allocate memory on device
   int *d_a, *d_b, *d_c;

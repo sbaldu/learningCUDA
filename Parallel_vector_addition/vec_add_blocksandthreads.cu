@@ -3,7 +3,7 @@
 __global__ void add(int* a, int* b, int* c, int n) {
   int index = blockDim.x * blockIdx.x + threadIdx.x;
   if (index < n) {
-	c[index] = a[index] + b[index];
+    c[index] = a[index] + b[index];
   }
 }
 
@@ -12,7 +12,7 @@ __global__ void add(int* a, int* b, int* c, int n) {
 
 void random_ints(int* a) {
   for (int i{}; i < N; ++i) {
-	a[i] = rand();
+    a[i] = rand();
   }
 }
 
@@ -39,7 +39,7 @@ int main() {
   cudaMemcpy(d_c, c, size, cudaMemcpyHostToDevice);
 
   // Calculate the output on device
-  add<<<N/M, M>>>(d_a, d_b, d_c, N);
+  add<<<N / M, M>>>(d_a, d_b, d_c, N);
 
   // Copy the output back to host
   cudaMemcpy(a, d_a, size, cudaMemcpyDeviceToHost);
@@ -48,8 +48,8 @@ int main() {
 
   // Print the output
   int sum{};
-  for(int i{}; i < size; ++i) {
-	sum += c[i];
+  for (int i{}; i < size; ++i) {
+    sum += c[i];
   }
   std::cout << "The sum is : " << sum << '\n';
 
