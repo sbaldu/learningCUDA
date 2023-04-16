@@ -3,19 +3,17 @@
 #include <numeric>
 #include <vector>
 
-#define N 100
-
-__global__ void cube(int* a, int* b) {
-  b[threadIdx.x] = std::pow(a[threadIdx.x], 3);
-}
+__global__ void cube(int* a, int* b) { b[threadIdx.x] = std::pow(a[threadIdx.x], 3); }
 
 int main() {
+  int const threadsPerBlock{256};
+  int const N{32 * 256};
+  int const size{sizeof(int) * N};
+
   // Allocate memory on host
   std::vector<int> in(N);
   std::vector<int> out(N);
   std::iota(in.begin(), in.end(), 1);
-
-  int size{sizeof(int) * N};
 
   // Allocate memory on device
   int* d_in;
@@ -27,15 +25,15 @@ int main() {
   cudaMemcpy(d_in, in.data(), size, cudaMemcpyHostToDevice);
 
   // Calculate the cubes and save them on the output pointer
-  cube<<<1, N>>>(d_in, d_out);
+  cube<<<N / threadsPerBlock, threadsPerBlock>>>(d_in, d_out);
 
   // Copy the output back to host
   cudaMemcpy(out.data(), d_out, size, cudaMemcpyDeviceToHost);
 
   // Calculate the sum
-  int sum{};
-  for(auto const& x : out) {
-	sum += x;
+  long long int sum{};
+  for (auto const& x : out) {
+    sum += x;
   }
   std::cout << "The final output is : " << sum << '\n';
 

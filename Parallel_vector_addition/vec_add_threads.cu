@@ -1,9 +1,7 @@
 #include <iostream>
 #include <vector>
 
-__global__ void add(int *a, int *b, int *c) { 
-  c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x]; 
-}
+__global__ void add(int *a, int *b, int *c) { c[threadIdx.x] = a[threadIdx.x] + b[threadIdx.x]; }
 
 void print(int *p, int n) {
   for (int i{}; i < n; ++i) {

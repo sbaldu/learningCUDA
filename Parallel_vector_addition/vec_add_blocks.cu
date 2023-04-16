@@ -1,8 +1,6 @@
 #include <iostream>
 
-__global__ void add(int *a, int *b, int *c) { 
-  c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x]; 
-}
+__global__ void add(int *a, int *b, int *c) { c[blockIdx.x] = a[blockIdx.x] + b[blockIdx.x]; }
 
 #define N 32
 

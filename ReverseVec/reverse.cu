@@ -9,25 +9,24 @@ __global__ void reverse(int* in, int* out, int n) {
 }
 
 __host__ void initialize(std::vector<int>& vec) {
-  for(int i{}; i < vec.size(); ++i) {
-	vec[i] = std::rand();
+  for (int i{}; i < vec.size(); ++i) {
+    vec[i] = std::rand();
   }
-} 
+}
 
-__host__ void verify(std::vector<int> const& input, 
-					 std::vector<int> const& output) {
+__host__ void verify(std::vector<int> const& input, std::vector<int> const& output) {
   size_t n{input.size()};
-  for(int i{}; i < n; ++i) {
-	assert(input[i] == output[n-i-1]);
+  for (int i{}; i < n; ++i) {
+    assert(input[i] == output[n - i - 1]);
   }
 
   std::cout << "The result is correct!\n";
 }
 
 int main() {
-  int const threadsPerBlock{ 1024 };
-  int const N{ threadsPerBlock };
-  int const size{ N * sizeof(int) };
+  int const threadsPerBlock{1024};
+  int const N{threadsPerBlock};
+  int const size{N * sizeof(int)};
 
   // Allocate memory on host
   std::vector<int> a(N);
