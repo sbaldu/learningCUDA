@@ -1,22 +1,38 @@
+#include <cassert>
 #include <iostream>
-#include <numeric>
+#include <random>
 #include <vector>
 
-#define n 10
-
-__global__ void reverse(int* in, int* out) {
+__global__ void reverse(int* in, int* out, int n) {
   int index = threadIdx.x;
   out[index] = in[n - index - 1];
 }
 
-int main() {
-  // Allocate memory on host
-  std::vector<int> a(n);
-  std::vector<int> b(n);
-  std::iota(a.begin(), a.end(), 0);
-  std::iota(b.begin(), b.end(), 0);
+__host__ void initialize(std::vector<int>& vec) {
+  for(int i{}; i < vec.size(); ++i) {
+	vec[i] = std::rand();
+  }
+} 
 
-  int size{sizeof(int) * n};
+__host__ void verify(std::vector<int> const& input, 
+					 std::vector<int> const& output) {
+  size_t n{input.size()};
+  for(int i{}; i < n; ++i) {
+	assert(input[i] == output[n-i-1]);
+  }
+
+  std::cout << "The result is correct!\n";
+}
+
+int main() {
+  int const threadsPerBlock{ 1024 };
+  int const N{ threadsPerBlock };
+  int const size{ N * sizeof(int) };
+
+  // Allocate memory on host
+  std::vector<int> a(N);
+  std::vector<int> b(N);
+  initialize(a);
 
   // Allocate memory on device
   int *d_a, *d_b;
@@ -27,15 +43,13 @@ int main() {
   cudaMemcpy(d_a, a.data(), size, cudaMemcpyHostToDevice);
 
   // Calculate output on device
-  reverse<<<1, n>>>(d_a, d_b);
+  reverse<<<1, N>>>(d_a, d_b, N);
 
   // Move output from device to host
   cudaMemcpy(b.data(), d_b, size, cudaMemcpyDeviceToHost);
 
-  // Print output
-  for (auto const& x : b) {
-    std::cout << x << '\n';
-  }
+  // Verify result
+  verify(a, b);
 
   // Free memory
   cudaFree(d_a);
