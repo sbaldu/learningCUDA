@@ -1,20 +1,22 @@
 #include <cassert>
 #include <iostream>
 #include <random>
+#include <stdio.h>
 #include <vector>
 
-#define N 1024
-
 // Basic kernel for sum of two matrices
-__global__ void matSum(const int* a, const int* b, int* c) {
-  int i = threadIdx.x + blockDim.x * blockIdx.x;
-  int j = threadIdx.y + blockDim.y * blockIdx.y;
+__global__ void matSum(const int* a, const int* b, int* c, int n) {
+  unsigned int col = threadIdx.x + blockDim.x * blockIdx.x;
+  unsigned int row = threadIdx.y + blockDim.y * blockIdx.y;
 
-  c[i + N * j] = a[i + N * j] + b[i + N * j];
+  unsigned int global_index{col + n * row};
+  if (col < n && row < n) {
+	c[global_index] = a[global_index] + b[global_index];
+  }
 }
 
-__host__ void initializeData(std::vector<int>& a, std::vector<int>& b) {
-  for (int i{}; i < N * N; ++i) {
+__host__ void initializeData(std::vector<int>& a, std::vector<int>& b, int n) {
+  for (int i{}; i < n * n; ++i) {
     a[i] = rand();
     b[i] = rand();
   }
@@ -30,18 +32,20 @@ __host__ void verify(std::vector<int> const& a, std::vector<int> const& b, std::
 
 int main() {
   // Define dimensions of blocks and grids
-  int const threadsPerBlock{32};
-  dim3 block(threadsPerBlock, threadsPerBlock);
-  dim3 grid(N / block.x, N / block.y);
+  const int N{1 << 10};
+  const int block_size{32};
+  const int grid_size{(int)std::ceil(N / (float)(block_size))};
+  dim3 block(block_size, block_size);
+  dim3 grid(grid_size, grid_size);
 
-  int const size{sizeof(int) * N * N};
+  const int size{sizeof(int) * N * N};
 
   // Allocate memory on host
   std::vector<int> h_a(N * N);
   std::vector<int> h_b(N * N);
   std::vector<int> h_c(N * N);
 
-  initializeData(h_a, h_b);
+  initializeData(h_a, h_b, N);
 
   // Allocate memory on device
   int *d_a, *d_b, *d_c;
@@ -54,7 +58,7 @@ int main() {
   cudaMemcpy(d_b, h_b.data(), size, cudaMemcpyHostToDevice);
 
   // Execute kernel
-  matSum<<<grid, block>>>(d_a, d_b, d_c);
+  matSum<<<grid, block>>>(d_a, d_b, d_c, N);
 
   // Copy data back to host
   cudaMemcpy(h_c.data(), d_c, size, cudaMemcpyDeviceToHost);
