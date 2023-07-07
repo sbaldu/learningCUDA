@@ -35,7 +35,7 @@ void verify_result(std::vector<int> &a, std::vector<int> &b, std::vector<int> &c
 }
 
 int main() {
-  const int N{1 << 5};
+  const int N{1 << 10};
   const int size = {N * N * sizeof(int)};
 
   // Inizialize data on host
