@@ -99,9 +99,10 @@ int main() {
 
   // Run kernel
   const int block_size{32};
-  const int grid_size{(int)std::ceil(N / (float)(block_size))};
+  const int grid_x{(int)std::ceil(M / (float)(block_size))};
+  const int grid_y{(int)std::ceil(N / (float)(block_size))};
   dim3 threads(block_size, block_size);
-  dim3 blocks(grid_size, grid_size);
+  dim3 blocks(grid_x, grid_y);
 
   // We must allocate enoughe memory for both the arrays in shared memory
   const int shared_size{2 * block_size * block_size * sizeof(int)};
