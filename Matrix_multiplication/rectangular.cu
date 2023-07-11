@@ -46,16 +46,17 @@ __global__ void matMul(const matrix_t<T> a, const matrix_t<T> b, matrix_t<T> c, 
   }
 }
 
-void verify_result(const std::vector<int> &a, const std::vector<int> &b, const std::vector<int> &c, int N) {
+void verify_result(
+    const std::vector<int> &a, const std::vector<int> &b, const std::vector<int> &c, int N, int K, int M) {
   for (int i = 0; i < N; i++) {
-    for (int j = 0; j < N; j++) {
+    for (int j = 0; j < M; j++) {
       int tmp = 0;
-      for (int k = 0; k < N; k++) {
+      for (int k = 0; k < K; k++) {
         // Accumulate the partial results
-        tmp += a[i * N + k] * b[k * N + j];
+        tmp += a[i * K + k] * b[k * M + j];
       }
 
-      assert(tmp == c[i * N + j]);
+      assert(tmp == c[i * M + j]);
     }
   }
 
@@ -63,31 +64,38 @@ void verify_result(const std::vector<int> &a, const std::vector<int> &b, const s
 }
 
 int main() {
+  // We are multiplying an N x K matrix with a K x M matrix
   const int N{1 << 10};
-  const int size{N * N * sizeof(int)};
+  const int K{1 << 9};
+  const int M{1 << 10};
 
   // Inizialize data on host
-  std::vector<int> a(N * N);
-  std::vector<int> b(N * N);
+  std::vector<int> a(N * K);
+  std::vector<int> b(K * M);
   std::vector<int> c(N * N);
+
+  // Define the sizes
+  const int size_a{N * K * sizeof(int)};
+  const int size_b{K * M * sizeof(int)};
+  const int size_c{N * M * sizeof(int)};
 
   std::generate(a.begin(), a.end(), []() { return rand() % 100; });
   std::generate(b.begin(), b.end(), []() { return rand() % 100; });
 
   // Allocate memory on device
   int *d_a, *d_b, *d_c;
-  cudaMalloc(&d_a, size);
-  cudaMalloc(&d_b, size);
-  cudaMalloc(&d_c, size);
+  cudaMalloc(&d_a, size_a);
+  cudaMalloc(&d_b, size_b);
+  cudaMalloc(&d_c, size_c);
 
   // Create matrices on device
-  matrix_t<int> mat_a(N, N, d_a);
-  matrix_t<int> mat_b(N, N, d_b);
-  matrix_t<int> mat_c(N, N, d_c);
+  matrix_t<int> mat_a(N, K, d_a);
+  matrix_t<int> mat_b(K, M, d_b);
+  matrix_t<int> mat_c(N, M, d_c);
 
   // Copy memory to device
-  cudaMemcpy(mat_a.data, a.data(), size, cudaMemcpyHostToDevice);
-  cudaMemcpy(mat_b.data, b.data(), size, cudaMemcpyHostToDevice);
+  cudaMemcpy(mat_a.data, a.data(), size_a, cudaMemcpyHostToDevice);
+  cudaMemcpy(mat_b.data, b.data(), size_b, cudaMemcpyHostToDevice);
 
   // Run kernel
   const int block_size{32};
@@ -100,9 +108,9 @@ int main() {
   matMul<<<blocks, threads, shared_size>>>(mat_a, mat_b, mat_c, block_size);
 
   // Copy result back to the host
-  cudaMemcpy(c.data(), mat_c.data, size, cudaMemcpyDeviceToHost);
+  cudaMemcpy(c.data(), mat_c.data, size_c, cudaMemcpyDeviceToHost);
 
-  verify_result(a, b, c, N);
+  verify_result(a, b, c, N, K, M);
 
   // Free memory
   cudaFree(d_a);
