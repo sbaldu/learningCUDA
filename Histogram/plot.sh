@@ -1,6 +1,6 @@
 #!/bin/bash
 
-make ;
+cmake -B build && make -C build ;
 ./hist.out > data.csv ;
 python3 plot.py ;
 
