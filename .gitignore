@@ -1,6 +1,9 @@
 # Executables
 *.out
 
+# Build directories
+*build
+
 # Misc.
 *.pdf
 *.csv
