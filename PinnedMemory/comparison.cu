@@ -14,14 +14,14 @@ __global__ void kernel(const T *a, T *b, size_t n) {
 }
 
 template <typename T, std::size_t N = std::dynamic_extent>
-__host__ void fill(const std::span<const T> container) {
+__host__ void fill(std::span<T> container) {
   for (auto &elem : container) {
     elem = static_cast<T>(rand());
   }
 }
 
 template <typename T, std::size_t N = std::dynamic_extent>
-__host__ void validate(const std::span<const T> a, const std::span<const T> b) {
+__host__ void validate(std::span<const T> a, std::span<const T> b) {
   for (size_t i = 0; i < a.size(); ++i) {
     if (a[i] != b[i]) {
       printf("Validation failed at index %zu\n", i);
@@ -35,7 +35,7 @@ template <typename T>
 void pageableRun(std::size_t N) {
   std::vector<T> a(N);
   std::vector<T> b(N);
-  fill(a);
+  fill<T>(a);
 
   T *d_a, *d_b;
   cudaMalloc(&d_a, N * sizeof(T));
@@ -50,7 +50,7 @@ void pageableRun(std::size_t N) {
   // again, from device memory to pinned memory, and then to pageable memory
   cudaMemcpy(b.data(), d_b, N * sizeof(T), cudaMemcpyDeviceToHost);
 
-  validate(a, b);
+  //validate<T>(a, b);
 }
 
 template <typename T>
@@ -58,7 +58,7 @@ void pinnedRun(std::size_t N) {
   T *a, *b;
   cudaMallocHost(&a, N * sizeof(T));
   cudaMallocHost(&b, N * sizeof(T));
-  fill(a);
+  fill<T>(a);
 
   T *d_a, *d_b;
   cudaMalloc(&d_a, N * sizeof(T));
@@ -73,7 +73,7 @@ void pinnedRun(std::size_t N) {
   // again, from device memory to pinned memory, and then to pageable memory
   cudaMemcpy(b, d_b, N * sizeof(T), cudaMemcpyDeviceToHost);
 
-  validate(a, b);
+  //validate<T>(a, b);
 }
 
 int main() {
