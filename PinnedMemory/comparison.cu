@@ -76,28 +76,37 @@ void pinnedRun(std::size_t N) {
   //validate<T>(a, b);
 }
 
-int main() {
-  const std::size_t N{1 << 20};
+int main(int argc, char **argv) {
+  std::size_t N{};
+  if (argc != 2) {
+    N = 1 << 20;
+  } else {
+    N = std::stoi(argv[1]);
+  }
   const std::size_t nruns{10};
 
-  auto start{std::chrono::high_resolution_clock::now()}; 
-  auto finish{std::chrono::high_resolution_clock::now()}; 
+  auto start{std::chrono::high_resolution_clock::now()};
+  auto finish{std::chrono::high_resolution_clock::now()};
 
   std::vector<long long> pag(nruns, 0);
   std::vector<long long> pin(nruns, 0);
   for (size_t i{}; i < nruns; ++i) {
-	start = std::chrono::high_resolution_clock::now();
-	pageableRun<float>(N);
-	finish = std::chrono::high_resolution_clock::now();
-	pag.push_back((finish - start).count());
+    start = std::chrono::high_resolution_clock::now();
+    pageableRun<float>(N);
+    finish = std::chrono::high_resolution_clock::now();
+    pag.push_back((finish - start).count());
   }
   for (size_t i{}; i < nruns; ++i) {
-	start = std::chrono::high_resolution_clock::now();
-	pinnedRun<float>(N);
-	finish = std::chrono::high_resolution_clock::now();
-	pin.push_back((finish - start).count());
+    start = std::chrono::high_resolution_clock::now();
+    pinnedRun<float>(N);
+    finish = std::chrono::high_resolution_clock::now();
+    pin.push_back((finish - start).count());
   }
 
-  std::cout << "Pageable avg: " << std::accumulate(pag.begin(), pag.end(), 0) / (float)nruns << '\n';
-  std::cout << "Pinned avg: " << std::accumulate(pin.begin(), pin.end(), 0) / (float)nruns << '\n';
+  std::cout << "Pageable avg: "
+            << std::accumulate(pag.begin(), pag.end(), 0) / (float)nruns
+            << '\n';
+  std::cout << "Pinned avg: "
+            << std::accumulate(pin.begin(), pin.end(), 0) / (float)nruns
+            << '\n';
 }
