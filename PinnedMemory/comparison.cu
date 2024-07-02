@@ -1,5 +1,6 @@
 
 #include <chrono>
+#include <iostream>
 #include <random>
 #include <span>
 #include <vector>
