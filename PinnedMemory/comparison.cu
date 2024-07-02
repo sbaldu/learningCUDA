@@ -78,13 +78,13 @@ void pinnedRun(std::size_t N) {
 
 int main() {
   const std::size_t N{1 << 20};
-  const std::size_t nruns{100};
+  const std::size_t nruns{10};
 
   auto start{std::chrono::high_resolution_clock::now()}; 
   auto finish{std::chrono::high_resolution_clock::now()}; 
 
-  std::vector<long long> pag(nruns);
-  std::vector<long long> pin(nruns);
+  std::vector<long long> pag(nruns, 0);
+  std::vector<long long> pin(nruns, 0);
   for (size_t i{}; i < nruns; ++i) {
 	start = std::chrono::high_resolution_clock::now();
 	pageableRun<float>(N);
