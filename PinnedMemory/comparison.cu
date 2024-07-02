@@ -58,7 +58,7 @@ void pinnedRun(std::size_t N) {
   T *a, *b;
   cudaMallocHost(&a, N * sizeof(T));
   cudaMallocHost(&b, N * sizeof(T));
-  fill<T>(a);
+  fill<T>(std::span<T>{a, N});
 
   T *d_a, *d_b;
   cudaMalloc(&d_a, N * sizeof(T));
