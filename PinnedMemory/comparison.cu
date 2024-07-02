@@ -13,15 +13,15 @@ __global__ void kernel(const T *a, T *b, size_t n) {
   }
 }
 
-template <typename T>
-__host__ void fill(std::span<T> container) {
+template <typename T, std::size_t N = std::dynamic_extent>
+__host__ void fill(const std::span<const T> container) {
   for (auto &elem : container) {
     elem = static_cast<T>(rand());
   }
 }
 
-template <typename T>
-__host__ void validate(std::span<T> a, std::span<T> b) {
+template <typename T, std::size_t N = std::dynamic_extent>
+__host__ void validate(const std::span<const T> a, const std::span<const T> b) {
   for (size_t i = 0; i < a.size(); ++i) {
     if (a[i] != b[i]) {
       printf("Validation failed at index %zu\n", i);
